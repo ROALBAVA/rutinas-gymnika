@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rutinas Gymnika</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: una columna tipo planilla de sala; cabecera con selector, reparto por días y rutinas plegables. Fases con colores de discos olímpicos. */
+:root{
+  --bg:#f2f4f3; --surface:#ffffff; --ink:#17201c; --muted:#5d6863; --line:#d9dfdc;
+  --accent:#1f4fa8; --accent-ink:#ffffff; --soft:#e8edf6;
+  --p1:#c8322b; --p2:#2457b8; --p3:#d9a90f; --p4:#2f8a4c; --pc:#6b7570;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121715; --surface:#1b2220; --ink:#e7ecea; --muted:#9aa6a1; --line:#2c3532;
+  --accent:#7ea6f0; --accent-ink:#0e1420; --soft:#1e2838;
+  --p1:#e8574f; --p2:#5d8be0; --p3:#e7bd34; --p4:#4fb06d; --pc:#8d9893; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121715; --surface:#1b2220; --ink:#e7ecea; --muted:#9aa6a1; --line:#2c3532;
+  --accent:#7ea6f0; --accent-ink:#0e1420; --soft:#1e2838;
+  --p1:#e8574f; --p2:#5d8be0; --p3:#e7bd34; --p4:#4fb06d; --pc:#8d9893; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:820px;margin:0 auto;padding-inline:16px;padding-block:20px 60px;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:.01em}
+h1{font-size:2.2rem;line-height:1}
+h2{font-size:1.5rem}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:600}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.field{display:flex;flex-direction:column;gap:4px;flex:1 1 220px;min-width:0}
+label{font-size:.8rem;font-weight:600;color:var(--muted)}
+select{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:100%}
+button{font:inherit;cursor:pointer;border-radius:8px}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;padding:11px 22px;font-family:var(--display);font-size:1.15rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line);padding:10px 14px;font-weight:600}
+button:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.weekhead{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.plate{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:1.7rem;color:#fff;flex:none;box-shadow:inset 0 0 0 5px rgba(0,0,0,.18)}
+.plate.y{color:#1d1a0c}
+.weekhead .t{min-width:0;flex:1}
+.dose{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.dose div{background:var(--bg);border-radius:8px;padding:10px 12px;min-width:0}
+.dose b{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.note{font-size:.88rem;color:var(--muted);margin:0}
+.note b{color:var(--ink)}
+.days{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:560px){.days{grid-template-columns:1fr}}
+.day{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.day h3{font-size:1.25rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--soft);color:var(--ink);font-weight:600;font-size:.85rem;text-decoration:none;border:1px solid transparent}
+.chip:hover{border-color:var(--accent)}
+.chip small{font-weight:500;color:var(--muted)}
+details.rt{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+details.rt>summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;gap:12px;align-items:center}
+details.rt>summary::-webkit-details-marker{display:none}
+.rid{font-family:var(--display);font-weight:700;font-size:1.5rem;min-width:44px}
+.rname{flex:1;min-width:0;font-weight:600}
+.rname small{display:block;font-weight:400;color:var(--muted);font-size:.85rem}
+.caret{color:var(--muted);transition:transform .15s}
+details[open] .caret{transform:rotate(90deg)}
+.rbody{padding:0 16px 16px;display:flex;flex-direction:column;gap:14px}
+.blk{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px}
+.blk h4{margin:0;font-size:.95rem;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.blk h4 .tm{font-weight:500;color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums}
+.ex{display:flex;flex-direction:column;gap:2px;padding:8px 0 8px 12px;border-left:3px solid var(--line)}
+.ex.star{border-left-color:var(--accent)}
+.exn{font-weight:700}
+.dz{display:flex;flex-wrap:wrap;gap:4px 14px;font-variant-numeric:tabular-nums;font-size:.9rem}
+.dz span b{color:var(--muted);font-weight:500;font-size:.78rem;margin-right:3px}
+.cue{margin:0;font-size:.85rem;color:var(--muted)}
+.reg{margin:0;font-size:.85rem}
+.reg b{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--p1);margin-right:4px}
+ul.li{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
+ul.li li{font-size:.92rem}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:2px 8px;border-radius:4px;background:var(--soft);color:var(--accent)}
+.copy{margin-left:auto}
+.foot details{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px}
+.foot summary{cursor:pointer;font-weight:600}
+.foot table{border-collapse:collapse;font-size:.85rem;width:100%;min-width:460px}
+.foot td,.foot th{border-bottom:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}
+.scroll{overflow-x:auto}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>html{color-scheme:light}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:6px">
+    <span class="eyebrow">Macrociclo Gymnika 2026-2027 · 07/09/2026 – 24/01/2027</span>
+    <h1>Rutinas de la semana</h1>
+  </header>
+
+  <div class="bar">
+    <div class="field">
+      <label for="sem">Semana del ciclo</label>
+      <select id="sem"></select>
+    </div>
+    <button class="btn-ghost" id="hoy" type="button">Esta semana</button>
+    <button class="btn" id="go" type="button">Producir</button>
+  </div>
+
+  <main id="out" style="display:flex;flex-direction:column;gap:18px"></main>
+
+  <section class="foot" style="display:flex;flex-direction:column;gap:10px">
+    <details>
+      <summary>Ajustes por edad</summary>
+      <div class="scroll"><table>
+        <tr><th>Edad</th><th>Fuerza (F1-F2)</th><th>Potencia (F3)</th><th>Pliometría (F4)</th></tr>
+        <tr><td>17-19</td><td>Técnica primero; tope RPE 8, sin pico a RPE 9</td><td>Lanzamientos y saltos simples</td><td>Extensiva; intensiva solo con criterios y supervisión directa</td></tr>
+        <tr><td>20-59</td><td>Dosis del documento</td><td>Dosis del documento</td><td>Dosis del documento</td></tr>
+        <tr><td>60+</td><td>Ejercicios estables o guiados; progresión más gradual</td><td>Cargas ligeras con intención de velocidad</td><td>Reactivo de bajo impacto; intensiva solo si cumple criterios</td></tr>
+      </table></div>
+    </details>
+    <details>
+      <summary>Reglas de la semana y equipamiento</summary>
+      <ul class="li" style="margin-top:8px">
+        <li>R1, R2 y R3 son el 1.er, 2.º y 3.er día de cada persona, caiga el día que caiga.</li>
+        <li>Máximo 2 sesiones pesadas del mismo patrón por persona y semana.</li>
+        <li>R4 no lleva principales pesados ni crusher.</li>
+        <li>Estaciones de 2-3 personas: R1 rack, R2 barra en el piso, R3 trineo. Si R1 y R2 coinciden, el press landmine pasa a press con mancuerna a 1 brazo.</li>
+        <li>Con 1 coach y más de 6 personas: solo una estación de barra pesada o pliometría intensiva a la vez, con el coach ahí.</li>
+        <li>El trineo entra al crusher solo con 4 personas o menos.</li>
+        <li>Faltó 1 semana: retoma con la dosis de la semana anterior. Faltó 2 o más: una semana como no apto. Persona nueva: NIVELACIÓN (como no apto, sin explosivos con carga ni pliometría intensiva).</li>
+      </ul>
+    </details>
+    <details>
+      <summary>Filtro de dolor</summary>
+      <ul class="li" style="margin-top:8px">
+        <li>Dolor ≤3/10 que no empeora ni cambia la técnica: seguir con carga ajustada.</li>
+        <li>Señales de alarma (irradiado, hormigueo, en reposo o de noche, sube serie a serie, dura más de 24 h, pérdida de fuerza, golpe reciente): a terapia.</li>
+        <li>Sin alarma: 1-2 ejercicios de activación del patrón y repetir con menos carga. Si baja a ≤3/10, sigue como no apto con esa activación antes del patrón. Si no cambia, a terapia.</li>
+        <li>Dolor en el pecho, mareo o falta de aire desproporcionada: detener la sesión y derivar a evaluación médica.</li>
+      </ul>
+    </details>
+  </section>
+</div>
+
+<script>
+const START=new Date(2026,8,7);
+const pad=n=>String(n).padStart(2,'0');
+const fmt=d=>pad(d.getDate())+'/'+pad(d.getMonth()+1);
+function wStart(n){const d=new Date(START);d.setDate(d.getDate()+7*(n-1));return d}
+function wEnd(n){const d=wStart(n);d.setDate(d.getDate()+6);return d}
+function currentWeek(){const t=new Date();t.setHours(0,0,0,0);const diff=Math.floor((t-START)/864e5);if(diff<0)return 1;const w=Math.floor(diff/7)+1;return w>20?20:w}
+function phaseKey(n){return n<=6?'F1':n<=8?'F2':n<=13?'F3':n<=16?'F4a':n<=18?'F4b':'C'}
+
+const PH={
+ F1:{name:'Fase 1 · Miofibrilar',short:'F1',plate:'--p1',obj:'Fuerza máxima, base del ciclo',
+  reglas:'Si la primera serie sale 2 RPE por debajo del objetivo, subir 2,5-5% en tren superior o 5-10% en inferior en la serie siguiente. Si pasa 1 punto por encima, bajar 5-10% o quitar una serie. Nadie trabaja al fallo.',
+  R:{
+  R1:[["★ Sentadilla frontal","4","4-6","RPE 7 → 9","2'30-3'","Codos altos, tronco vertical, rodilla sigue al pie","Goblet squat"],
+      ["★ Dominada lastrada","4","3-6","RPE 7 → 9","2'30-3'","Escápulas abajo antes de tirar, sin balanceo","Dominada con banda"],
+      ["Búlgara con KB en rack","3","6 c/l","RIR 2","90''","Pie delantero completo, pelvis nivelada","Split squat"],
+      ["Pallof con pausa semiarrodillado","3","8 c/l, pausa 3''","RIR 2","60''","Costillas abajo, cadera fija","Pallof de pie, banda ligera"]],
+  R2:[["★ Peso muerto con barra","4","3-5","RPE 7 → 9","3'","Barra pegada, columna neutra, empujar el piso","PM con KB"],
+      ["★ Press landmine 1 brazo semiarrodillado","4","5-6 c/l","RPE 7 → 9","2'","Glúteo de la rodilla apoyada activo, sin arquear","Press landmine 2 manos"],
+      ["Remo Meadows","3","6-8 c/l","RIR 2","90''","Codo hacia la cadera, tronco quieto","Remo con mancuerna apoyado"],
+      ["Carrera de maleta pesada","3","20-30 m c/l","RPE 8","90''","Hombros nivelados, paso normal","15 m, carga ligera"]],
+  R3:[["★ Empuje de trineo pesado","5","15 m","RPE 8","2'","Línea hombro-cadera-tobillo, pasos cortos","Trineo ligero"],
+      ["★ Fondos lastrados","4","4-6","RPE 7 → 9","2'30","Hombro bajo control, rango sin dolor","Fondos en banco"],
+      ["PMR 1 pierna con KB contralateral","3","6 c/l","RIR 2","90''","Cadera cuadrada, espalda larga","PMR 1 pierna con apoyo de mano"],
+      ["Arrastre de trineo hacia atrás","4","20 m","RPE 7-8","90''","Talones que empujan, tronco inclinado","Carga ligera"],
+      ["Remo renegado","3","6 c/l","RIR 2","60''","Pies separados, cadera sin girar","Desde rodillas"]]},
+  rot:{enf:'Control lento con pausa',
+   R1:[["Chop wood de pie con banda, de arriba hacia abajo","Chop semi-arrodillado con banda"],["Pallof press de pie, pies paralelos","Pallof press semi-arrodillado"]],
+   R2:[["Windmill de pie con KB en la mano de abajo","Windmill semi-arrodillado sin carga"],["Marcha suitcase 20 m, carga moderada","Marcha suitcase 10-15 m, carga ligera"]],
+   R3:[["Chop wood de pie con banda","Chop semi-arrodillado con banda"],["Halo de pie con KB","Halo arrodillado con disco ligero"]]},
+  crusher:["KTB complex pesado y corto · Farmer carry pesado 30 m + arrastre de trineo 20 m","KTB complex ligero · Farmer moderado 20 m","3 rondas, descanso libre","Carga alta, técnica simple, sin fallo"],
+  cal:'Solo las series de aproximación.'},
+ F2:{name:'Fase 2 · Sarcoplasmático',short:'F2',plate:'--p2',obj:'Capacidad de trabajo y densidad',
+  reglas:"El descanso no se acorta por debajo de 60'' si la técnica se degrada. Si alguien no completa las reps con RIR 2, baja la carga antes de alargar la pausa.",
+  R:{
+  R1:[["★ Goblet squat con pausa 2''","3 → 4","10-12","RIR 2-3","60-90''","Pausa abajo sin rebote","Goblet a cajón"],
+      ["★ Remo invertido TRX pies elevados","3 → 4","10-15","RIR 2-3","60-90''","Cuerpo en tabla, pecho a las manos","TRX más vertical"],
+      ["Zancada inversa con chaleco","3","10 c/l","RIR 2","60''","Rodilla trasera cerca del piso, tronco alto","Sin chaleco, con apoyo"],
+      ["Plank pull-through con KB","3","8 c/l","RIR 2","45''","Cadera quieta al arrastrar","Desde rodillas"]],
+  R2:[["★ KB swing ruso","3 → 4","15","RIR 2-3","60-90''","Bisagra, no sentadilla; brazos pasivos","PMR con KB"],
+      ["★ Push-up con chaleco o en déficit","3 → 4","10-15","RIR 2","60-90''","Cuerpo en bloque, codos a 45°","Manos en cajón"],
+      ["Remo con mancuerna a 1 brazo apoyado en banco","3","10 c/l","RIR 2","60''","Mano y rodilla apoyadas, columna neutra","Remo con elásticos"],
+      ["Farmer asimétrico","3","30 m","RPE 7","45''","Tronco recto con cargas distintas","Simétrico ligero"]],
+  R3:[["★ Step-up alto con mancuernas","3","10 c/l","RIR 2","60''","Sube la pierna de arriba, sin impulso de la de abajo","Cajón bajo"],
+      ["★ Press landmine de pie","3","12 c/l","RIR 2","60''","Costillas abajo, empuje hacia adelante y arriba","Semiarrodillado 2 manos"],
+      ["Hip thrust 1 pierna","3","12 c/l","RIR 2","60''","Pelvis nivelada arriba","Puente bilateral"],
+      ["Trineo adelante/atrás","4","20 + 20 m","RPE 7","60''","Ritmo constante","Carga ligera"],
+      ["Bear crawl con chaleco","3","20 m","RPE 7","45''","Rodillas a 2 cm del piso, espalda plana","Sin chaleco, 10 m"]]},
+  rot:{enf:'Más repeticiones y tiempo bajo tensión',
+   R1:[["Zancada inversa con rotación, med ball al frente","Zancada inversa con rotación sin carga"],["Plancha lateral en antebrazo, 20-30''","Plancha lateral con pies escalonados"]],
+   R2:[["Zancada inversa con rotación, med ball al frente","Zancada inversa con rotación sin carga"],["Marcha estática con KB en una mano","Marcha estática sin carga, pausa 2''"]],
+   R3:[["Zancada inversa con rotación, med ball al frente","Zancada inversa con rotación sin carga"],["Silla romana: extensión frontal hasta la línea neutra","Isometría frontal en silla romana 15-20''"]]},
+  crusher:["KTB complex por rondas · Bear crawl complex · EMOM: KB swing 10 + goblet squat 8 + push-up 8 + remo TRX 10","Mismos formatos con regresiones y 60-70% de las reps","AMRAP o EMOM de 5'","Densidad: poca pausa, técnica estable"],
+  cal:'Solo las series de aproximación.'},
+ F3:{name:'Fase 3 · Fuerza Explosiva',short:'F3',plate:'--p3',yellow:true,obj:'Convertir fuerza en velocidad',
+  reglas:"Par: pesado (3 reps) → 60-90'' → explosivo (3-5 reps a máxima velocidad) → 2'30-3' → siguiente par. Se corta la serie si la velocidad cae a simple vista. Si el explosivo se ve lento, se baja la carga del explosivo, no la del pesado. Nadie salta con dolor en rodilla, tobillo o columna: pasa a la regresión con med ball. Máximo 25 saltos por sesión.",
+  R:{
+  R1:[["★ Sentadilla frontal → ★ salto a cajón","3-4 pares","3 + 4","RPE 8 + máxima intención","60-90'' / 2'30-3'","Aterrizar suave en el cajón y bajar caminando","Goblet → sentarse y levantarse rápido con med ball"],
+      ["★ Dominada lastrada → ★ slam de med ball","3 pares","3 + 5","RPE 8 + máxima","60-90'' / 2'30","Slam con todo el cuerpo, no solo brazos","Dominada con banda → slam ligero"],
+      ["Pallof explosivo","3","6 c/l","Salida rápida, pausa 1''","60''","Cadera fija durante la salida","Pallof con pausa"]],
+  R2:[["★ Peso muerto → ★ KB swing explosivo","3-4 pares","3 + 5","RPE 8 + máxima","60-90'' / 3'","Swing con cadera que «chasquea»","PM con KB → PMR con KB rápido"],
+      ["★ Press landmine pesado → ★ pase de pecho med ball","3 pares","3 c/l + 5","RPE 8 + máxima","60-90'' / 2'30","Pase de pie, soltar al final del empuje","Landmine 2 manos → pase ligero"],
+      ["Carrera de maleta","3","20 m c/l","RPE 7-8","60''","Hombros nivelados","Carga ligera"]],
+  R3:[["★ Sprint con trineo ligero","6","10-15 m","Carga que permita postura de sprint","2'","Inclinación desde el tobillo, brazos activos","Trineo en marcha rápida"],
+      ["★ Landmine push press","4","3-4 c/l","Carga moderada, máxima velocidad","2'","Impulso de piernas y extensión completa","Landmine 2 manos rápido"],
+      ["★ Clean de KB","4","4-5 c/l","Moderada, máxima velocidad","2'","KB cerca del cuerpo, recepción suave","High pull KB"],
+      ["High pull KB","3","5","Moderada","90''","Codos altos, cadera explosiva","Swing corto"]]},
+  rot:{enf:'Rotación con velocidad',
+   R1:[["Lanzamiento rotacional de med ball a pared, de pie","Lanzamiento rotacional semi-arrodillado con balón ligero"],["Pallof press de pie, pies paralelos","Pallof press semi-arrodillado"]],
+   R2:[["Press landmine a 1 brazo de pie con rotación","Press landmine 1 brazo semi-arrodillado con rotación"],["Plancha lateral en antebrazo, 20-30''","Plancha lateral con pies escalonados"]],
+   R3:[["Chop con med ball a velocidad","Chop wood de pie con banda"],["Marcha suitcase 20 m, carga moderada","Marcha suitcase 10-15 m, carga ligera"]]},
+  crusher:["Piques con resistencia · Saltos con resistencia de liga · Slam de med ball × 5","Marcha rápida con resistencia · Slam ligero","5-6 series de 5-8'', descanso completo","Se corta si la velocidad cae a simple vista"],
+  cal:'+ 2 × 5 pogos suaves y 2 saltos submáximos a cajón.'},
+ F4:{name:'Fase 4 · Pliometría',short:'F4',plate:'--p4',obj:'Tolerancia al impacto y reactividad',
+  reglas:'Si el contacto con el suelo se alarga o el aterrizaje se vuelve ruidoso, termina la serie. Dolor >2/10 en articulaciones de carga devuelve a la persona a la extensiva esa semana.',
+  ext:[["Pogos","3","10-15","Baja, rítmica","60''","Tobillo rígido, contacto corto, rodilla casi recta","Pogos sin despegar (talones)"],
+       ["Saltos de tobillo adelante/atrás y laterales sobre línea","3","10 c/dirección","Baja","60''","Silenciosos, mirada al frente","Paso rápido sin salto"],
+       ["Saltos con minivallas continuos","3","6-8","Baja-media","90''","Rebote corto, brazos coordinados","Pasar caminando rápido"],
+       ["Saltos laterales con estabilización","3","5 c/l","Media, aterrizaje 2''","60''","Rodilla sobre el pie, cadera atrás","Paso lateral con freno"],
+       ["Push-up pliométrico a cajón","3","5-6","Media","90''","Manos elevadas, recepción suave","Push-up rápido en pared"]],
+  int:[["★ Drop jump desde cajón 30-45 cm","3-4","4-5","Máxima, contacto mínimo","2'","Caer, rebotar rápido y alto; si se hunde, bajar el cajón","Extensiva"],
+       ["★ Saltos continuos con vallas","3","5","Máxima","2'","Rodillas arriba, sin pausa entre vallas","Minivallas"],
+       ["★ Bounds alternos","3","6","Alta","2'","Empuje horizontal largo, brazos opuestos","Skips largos"],
+       ["Skater reactivo","3","4 c/l","Alta","90''","Rebote inmediato al lado contrario","Salto lateral con estabilización"],
+       ["Drop push-up","3","4-5","Alta","2'","Caer desde cajones bajos y empujar al instante","Push-up pliométrico a cajón"],
+       ["Pase de rebote med ball a pared","3","8","Alta","90''","Recibir y soltar sin pausa","Pase normal"]],
+  mant:{R1:["★ Mantenimiento: sentadilla frontal + dominada lastrada","2-3","3","RPE 7-8","2'","Igual que F1","Regresión de F1"],
+        R2:["★ Mantenimiento: peso muerto + press landmine","2-3","3","RPE 7-8","2'","Igual que F1","Regresión de F1"],
+        R3:["★ Mantenimiento: empuje de trineo pesado + fondos lastrados","2-3","3","RPE 7-8","2'","Igual que F1. El documento solo fija R1 y R2; aquí se usan los principales de R3 de F1","Regresión de F1"]},
+  rot:{enf:'Rotación reactiva y control',
+   R1:[["Lanzamiento con rebote y recepción continua","Lanzamiento rotacional de med ball a pared, de pie"],["Pallof press de pie, pies paralelos","Pallof press semi-arrodillado"]],
+   R2:[["Rotación de cadera con el pecho apoyado en la pelota de yoga","Patada lateral en cuadrupedia con manos en el piso"],["Pallof en zancada estática con pausa 3''","Pallof press de pie"]],
+   R3:[["Lanzamiento con rebote y recepción continua","Lanzamiento rotacional de med ball a pared, de pie"],["Pallof press de pie, pies paralelos","Pallof press semi-arrodillado"]]},
+  crusher:["Saltos largos, altos y laterales · Skater jump","Saltos laterales con estabilización · Farmer + bear crawl","3-4 series; los saltos se suman a los contactos del día","Si ya se cumplió el volumen de contactos, se cambia por carries"],
+  cal:'+ 2 × 10 pogos y 2 × 10 m de skips; los contactos cuentan en el total del día.'},
+ C:{name:'Cierre · Preparación para reiniciar',short:'Cierre',plate:'--pc',obj:'Medir, reclasificar y llegar recuperados al 25/01/2027',
+  reglas:'Quien arrastra dolor o fatiga de la F4 no hace las pruebas de salto; se registra y se evalúa con el fisioterapeuta. Quien faltó a más de la mitad de la F4 no hace el triple salto.',
+  rot:{enf:'Variantes medias a baja intensidad',
+   R1:[["Lanzamiento rotacional de med ball a pared, de pie (suave)","Lanzamiento semi-arrodillado con balón ligero"],["Pallof press de pie, pies paralelos","Pallof press semi-arrodillado"]],
+   R2:[["Zancada inversa con rotación, med ball al frente","Zancada inversa con rotación sin carga"],["Plancha frontal en antebrazos, 30-40''","Plancha en antebrazos desde rodillas"]],
+   R3:[["Chop wood de pie con banda","Chop semi-arrodillado con banda"],["Marcha suitcase 20 m, carga moderada","Marcha suitcase 10-15 m, carga ligera"]]},
+  cal:'Solo las series de aproximación.'}
+};
+
+const DOSE={
+ 1:["3 × 5-6, RPE 7","2-3 × 8, RIR 3-4","Cargas de referencia y técnica"],
+ 2:["4 × 5-6, RPE 7-7,5","3 × 8, RIR 3","+1 serie"],
+ 3:["4 × 4-5, RPE 8","3 × 6-8, RIR 3","+carga"],
+ 4:["4 × 4-5, RPE 8-8,5","3 × 6-8, RIR 2-3","+carga"],
+ 5:["4 × 3-4, RPE 8,5-9 (pico)","3 × 6, RIR 2","+carga; prueba de fuerza"],
+ 6:["Descarga: 2 rutinas R4 y el resto reducidas","Igual","Volumen reducido antes de F2"],
+ 7:["3 series, RIR 3","2 series, RIR 3-4","Adaptación; crusher de 5' a ritmo cómodo"],
+ 8:["4 series, RIR 2","3 series, RIR 3","+1 serie; crusher de 5' a ritmo alto"],
+ 9:["3 pares, pesado RPE 7,5","2-3 pares, RPE ≤7; explosivos con med ball","Técnica del par"],
+ 10:["4 pares, RPE 8","3 pares","+1 par"],
+ 11:["4 pares, RPE 8-8,5","3 pares","+carga en el pesado"],
+ 12:["4 pares, RPE 8,5; med ball +1-2 kg","3 pares","+carga en el explosivo"],
+ 13:["3 pares, RPE 8","2-3 pares","Consolidación y pruebas antes de F4"],
+ 14:["60 contactos, baja altura","30-40 contactos","Inicio extensiva"],
+ 15:["80 contactos","40-50 contactos","+contactos"],
+ 16:["100 contactos; evaluación de criterios","50-60 contactos","+contactos"],
+ 17:["Intensiva: 30-40 contactos, cajón 30 cm","Extensiva 50-60 contactos","Cambio a alta intensidad"],
+ 18:["Intensiva: 40-50 contactos, cajón hasta 45 cm","Extensiva 50-60 contactos","+contactos y altura"],
+ 19:["Pruebas: saltos primero (R1), fuerza después (R2-R3); resto a RPE 6","Igual, con regresiones","Registrar todo y reclasificar por patrón"],
+ 20:["Transición: 2 rutinas R4 + técnica de los principales de F1 a RPE 5-6","Igual","Fijar cargas de referencia de la semana 1"]
+};
+const TESTS={
+ 1:"Línea base: registrar cargas de referencia de cada principal.",
+ 5:"Prueba de fuerza: 3-5 RM estimado (aptos) o reps a carga fija (no aptos) en sentadilla, PM, dominada y press landmine. Push-up y dominadas máximas.",
+ 7:"Rondas del crusher estándar en 5' al final de la semana.",
+ 8:"Rondas del crusher estándar en 5' al final de la semana.",
+ 9:"Salto vertical con alcance y salto horizontal.",
+ 13:"Salto vertical con alcance y salto horizontal.",
+ 16:"Salto vertical con alcance. Verificar criterios de ingreso a la intensiva: aterrizaje estable (5 caídas desde 30 cm sosteniendo 2''), dolor ≤2/10, apto en empuje inferior y bisagra, y al menos 5 sesiones extensivas.",
+ 17:"Triple salto horizontal desde parado (quienes hacen intensiva).",
+ 18:"Triple salto horizontal desde parado (quienes hacen intensiva).",
+ 19:"Todas las pruebas: fuerza, push-up y dominadas máximas, crusher 5', salto vertical, horizontal y triple."
+};
+
+const ROT={3:[["R1","R2","R3"],["R1","R2","R4"],["R1","R2","R5"]],
+           4:[["R1","R2","R3","R4"],["R1","R2","R3","R5"],["R1","R2","R3","R4"]],
+           5:[["R1","R2","R3","R4","R5"],["R1","R2","R3","R4","R5"],["R1","R2","R3","R4","R5"]]};
+const DESC={3:["R4","R1r","R4"],4:["R4","R1r","R4","R2r"],5:["R4","R1r","R4","R2r","R5"]};
+const RNAME={R1:"Empuje inferior (sentadilla) + jalón superior",R2:"Bisagra + empuje superior",R3:"Trineo + unilateral + resistir rotación",R4:"Movilidad y descompresión",R5:"Propiocepción, equilibrio y SNC",R1r:"R1 reducida",R2r:"R2 reducida"};
+
+const MOV=["Gatos","Zancada con un pie a la altura de la mano, alternando","Aperturas de cadera","World's greatest stretch","Círculos con palo adelante y atrás, por encima y por debajo de la cabeza","Aperturas de cadera en L","90-90"];
+const EST=["Loaded beast con pierna extendida","Rotaciones de nadador","Amarrocados","Halos con poca resistencia","Pulpos (rotación externa e interna, cada hombro independiente)"];
+const CAL=[["Respiración diafragmática 90/90","5 respiraciones, exhalación larga","Igual"],
+ ["Dead bug con exhalación","6 c/l","Solo piernas"],
+ ["Inchworm con rotación torácica","4","Caminar manos desde cajón"],
+ ["Sentadilla cosaca sin carga","4 c/l","Rango parcial, con apoyo"],
+ ["Bear crawl","2 × 10 m","Cuadrupedia estática 20''"],
+ ["Puente de glúteo con marcha","8 c/l","Puente bilateral"],
+ ["Band pull-apart + push-up escapular","12 + 8","Push-up escapular en pared"],
+ ["Series progresivas del primer principal","2-3 series al 40-70% del peso de trabajo","Igual, con la regresión"]];
+const R4B=[["Respiración","5'","Respiración diafragmática 90/90 con exhalación larga","2 × 5 respiraciones"],
+ ["Movilidad de columna y cadera","15'","Gatos · World's greatest stretch · Zancada con un pie a la altura de la mano · Aperturas de cadera · Aperturas de cadera en L · 90-90","2 rondas, 6-8 por lado"],
+ ["Movilidad escapular","10'","Círculos con palo · Rotaciones de nadador · Amarrocados · Halos con poca resistencia","2 rondas, 8 repeticiones"],
+ ["Rotaciones Gymnika","10'","Caballero · Cachetadas · Patada de Ballet","8 repeticiones cada una"],
+ ["Descompresión","15'","Colgado relajado en barra · Ranas · San José · El 4 · Hinge de cadera · Good morning · Pivoteos de cadera","Colgado 3 × 20-30''; el resto 45-60'' por lado"],
+ ["Respiración final","5'","Respiración 90/90","2-3' y salida suave"]];
+const R5B=[["Pre-calentamiento de estabilidad","5'","Loaded beast con pierna extendida · Rotaciones de nadador · Halos con poca resistencia","1 ronda"],
+ ["Equilibrio estático","12'","Marcha estática · Barra asimétrica en isometría · Plancha lateral","3 × 20-30'' por lado"],
+ ["Equilibrio dinámico a 1 pierna","15'","PMR 1 pierna · Step-up alto lento · Windmill","3 × 6 por lado, sin llegar a la fatiga"],
+ ["Propiocepción en pelota","10'","Plancha con antebrazos en pelota de yoga · Rotación de cadera en pelota de yoga","3 × 20-30'' u 8 por lado"],
+ ["SNC","13'","Ejercicios con pelotas en equilibrio, coordinando movimientos distintos de brazos y piernas · Ejercicios posturales","Series de 20-40'' con calidad, sin llegar a la fatiga"],
+ ["Compensación","5'","Menú Gymnika","3-4 ejercicios"]];
+
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+function ex(e,o={}){
+  const [n,s,r,i,d,c,g]=e;
+  const series=o.series||s, inten=o.int||i;
+  return `<div class="ex${n.includes('★')?' star':''}"><div class="exn">${esc(n)}</div>
+  <div class="dz"><span><b>Series</b>${esc(series)}</span><span><b>Reps</b>${esc(r)}</span><span><b>Int.</b>${esc(inten)}</span><span><b>Desc.</b>${esc(d)}</span></div>
+  ${c?`<p class="cue">${esc(c)}</p>`:''}<p class="reg"><b>Reg.</b>${esc(g)}</p></div>`;
+}
+const blk=(num,t,tm,inner)=>`<div class="blk"><h4>${num}. ${t}${tm?` <span class="tm">${tm}</span>`:''}</h4>${inner}</div>`;
+const ul=a=>`<ul class="li">${a.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+
+function preBlk(r){const l=r==='R2'?EST:MOV;return blk(1,'Pre-calentamiento · '+(r==='R2'?'estabilidad':'movilidad'),"5'",`<p class="note">Elegir 3-4: 1 ronda de 45-60'' o 6-8 por lado.</p>`+ul(l.map(esc)))}
+function calBlk(k){const p=PH[k==='F4a'||k==='F4b'?'F4':k];return blk(2,'Calentamiento',"8'",ul(CAL.map(c=>`${esc(c[0])} — ${esc(c[1])} <span class="note">· Reg.: ${esc(c[2])}</span>`))+`<p class="note"><b>Última parte:</b> ${esc(p.cal)}</p>`)}
+function rotBlk(k,r){const p=PH[k==='F4a'||k==='F4b'?'F4':k];const [a,b]=p.rot[r];
+  return blk(3,'Rotación',"5'",`<p class="note">Énfasis: ${esc(p.rot.enf)}. 2 rondas de 6-10 por lado o 20-30''.</p>`+
+  ul([`<b>Rotar:</b> ${esc(a[0])} <span class="note">· Reg.: ${esc(a[1])}</span>`,`<b>Resistir:</b> ${esc(b[0])} <span class="note">· Reg.: ${esc(b[1])}</span>`]))}
+function compBlk(num,f4){return blk(num,'Compensación',"5'",`<p class="note">1 de la base + 2 del menú + 1 rotación Gymnika · 30-45'' o 6-8 por lado.</p>`+
+  ul(["<b>Base:</b> Colgado relajado en barra · Respiración 90/90 con exhalación larga","<b>Menú Gymnika:</b> Ranas · San José · Aperturas en L · El 4 · Hinge de cadera · Good morning · Pivoteos de cadera","<b>Rotaciones Gymnika:</b> Patada de Ballet · Caballero · Cachetadas"].concat(f4?["<b>F4:</b> + pantorrilla en pared y rodilla a la pared para el tobillo"]:[])))}
+function crushBlk(num,p,extra){const c=p.crusher;return blk(num,'Crusher',"5'",ul([`<b>Aptos:</b> ${esc(c[0])}`,`<b>No aptos:</b> ${esc(c[1])}`,`<b>Dosis:</b> ${esc(c[2])}`,`<b>Criterio:</b> ${esc(c[3])}`])+`<p class="note">El trineo entra al crusher solo con 4 personas o menos.${extra?' '+extra:''}</p>`)}
+
+function session(r,n){
+  const k=phaseKey(n);
+  if(r==='R4') return `<p class="note">No aptos: mismo contenido en rango sin dolor; colgado con los pies apoyados. Sin principales pesados ni crusher.</p>`+R4B.map((b,i)=>blk(i+1,b[0],b[1],`<p style="margin:0">${esc(b[2])}</p><p class="note">${esc(b[3])}</p>`)).join('');
+  if(r==='R5') return `<p class="note">No aptos: apoyo de una mano en pared a 1 pierna, propiocepción sin pelota y, en SNC, coordinación sentado en la pelota o de pie en el piso.</p>`+R5B.map((b,i)=>blk(i+1,b[0],b[1],`<p style="margin:0">${esc(b[2])}</p><p class="note">${esc(b[3])}</p>`)).join('');
+  if(r==='R1r'||r==='R2r'){
+    const base=r[0]+r[1], w20=n===20, rk=w20?'C':'F1';
+    const main=PH.F1.R[base].filter(e=>e[0].includes('★'));
+    return `<p class="note"><b>Reducida:</b> mismos principales de F1 con la mitad de las series, ${w20?'enfocado en técnica a RPE 5-6':'a RPE 6-7'} y sin crusher.</p>`+
+      preBlk(base)+calBlk(rk)+rotBlk(rk,base)+
+      blk(4,'Principales ★ (reducidos)',"24'",main.map(e=>ex(e,{series:'2',int:w20?'RPE 5-6, técnica':'RPE 6-7'})).join('')+(w20?'<p class="note">Fijar aquí las cargas de referencia de la semana 1 del próximo ciclo.</p>':''))+
+      blk(5,'Crusher','',`<p class="note">${w20?'Carries ligeros o ninguno.':'Sin crusher en descarga.'}</p>`)+compBlk(6,false);
+  }
+  if(k==='C'){ // semana 19 pruebas
+    const tests={
+      R1:["<b>Primero las pruebas de salto</b>","Salto vertical con alcance en pared: marca de pie y marca del salto con tiza, 3 intentos, se anota la mejor diferencia","Salto horizontal: aterrizaje estabilizado, 3 intentos","Triple salto horizontal desde parado: solo quienes hicieron intensiva; 3 saltos seguidos, distancia total con cinta"],
+      R2:["<b>Pruebas de fuerza</b> (mismo ejercicio, carga y orden que en semana 5)","3-5 RM estimado (aptos) o reps a carga fija (no aptos): sentadilla frontal y peso muerto","Push-up máximas con técnica, sin pausa arriba mayor a 2''"],
+      R3:["<b>Pruebas de fuerza</b> (mismo ejercicio, carga y orden que en semana 5)","3-5 RM estimado (aptos) o reps a carga fija (no aptos): dominada y press landmine","Dominadas máximas con técnica"]};
+    const rest=PH.F1.R[r].filter(e=>e[0].includes('★'));
+    return `<p class="note">El documento pone los saltos en R1 y la fuerza en R2-R3; el reparto de cada prueba entre R2 y R3 es una sugerencia.</p>`+
+      preBlk(r)+calBlk('C')+rotBlk('C',r)+blk(4,'Pruebas',"",ul(tests[r]))+
+      blk(5,'Resto de la sesión a RPE 6','',rest.map(e=>ex(e,{series:'2-3',int:'RPE 6'})).join(''))+
+      blk(6,'Crusher',"5'",`<p class="note">${r==='R3'?'<b>Test de capacidad:</b> crusher estándar de F2 en 5\' (contar rondas completas, mismo circuito y cargas).':'Sin crusher en semana de pruebas.'}</p>`)+compBlk(7,false);
+  }
+  if(k==='F4a'||k==='F4b'){
+    const p=PH.F4, intensiva=k==='F4b'&&(r==='R1'||r==='R3');
+    let plio;
+    if(intensiva){
+      plio=blk(4,'Pliometría intensiva (fresco)','',`<p class="note"><span class="tag">Solo con criterios</span> Contactos de la semana: ${esc(DOSE[n][0])}. Elegir ejercicios hasta completar los contactos. Al menos 48 h entre R1 y R3.</p>`+p.int.map(e=>ex(e)).join('')+
+        `<p class="note"><b>Quien no cumple criterios:</b> extensiva 50-60 contactos con progresión de complejidad (saltos a cajón más alto subiendo, no bajando), lanzamientos de med ball y sprint de trineo.</p>`);
+    } else {
+      plio=blk(4,'Pliometría extensiva (fresco)','',`<p class="note">Contactos de la semana · aptos: ${esc(k==='F4b'?'50-60 (en R2 la intensiva no va)':DOSE[n][0])} · no aptos: ${esc(DOSE[n][1])}. Ajustar series para no pasarse del total.</p>`+p.ext.map(e=>ex(e)).join(''));
+    }
+    return preBlk(r)+calBlk(k)+rotBlk(k,r)+plio+blk(5,'Mantenimiento de fuerza','',ex(p.mant[r]))+crushBlk(6,p)+compBlk(7,true);
+  }
+  // F1 (1-5), F2, F3
+  const p=PH[k], rows=p.R[r];
+  return preBlk(r)+calBlk(k)+rotBlk(k,r)+
+    blk(4,'Principales ★',"24' · por estaciones",`<p class="note">Dosis de la semana · aptos: ${esc(DOSE[n][0])} · no aptos: ${esc(DOSE[n][1])}.</p>`+rows.filter(e=>e[0].includes('★')).map(e=>ex(e)).join(''))+
+    blk(5,'Complementarios',"8'",rows.filter(e=>!e[0].includes('★')).map(e=>ex(e)).join(''))+
+    crushBlk(6,p)+compBlk(7,false);
+}
+
+function produce(){
+  const n=+document.getElementById('sem').value;
+  const k=phaseKey(n), p=PH[k==='F4a'||k==='F4b'?'F4':k];
+  const desc=n===6||n===20, wi=(n-1)%3;
+  const sub=k==='F4a'?' · extensiva':k==='F4b'?' · intensiva':n===6?' · descarga':n===19?' · pruebas':n===20?' · transición y descarga':'';
+  const lists={};[3,4,5].forEach(d=>lists[d]=desc?DESC[d]:ROT[d][wi]);
+  const used=[];['R1','R2','R3','R4','R5','R1r','R2r'].forEach(r=>{if([3,4,5].some(d=>lists[d].includes(r)))used.push(r)});
+  const dose=DOSE[n];
+  let h=`<section class="panel">
+    <div class="weekhead"><div class="plate${p.yellow?' y':''}" style="background:var(${p.plate})">${n}</div>
+      <div class="t"><span class="eyebrow">Semana ${n} de 20 · ${fmt(wStart(n))} al ${fmt(wEnd(n))}</span>
+      <h2>${esc(p.name)}${sub}</h2><p class="note">${esc(p.obj)}${desc?'':` · Semana ${wi+1} del ciclo de 3 semanas R4/R5`}</p></div></div>
+    <div class="dose"><div><b>Aptos</b>${esc(dose[0])}</div><div><b>No aptos</b>${esc(dose[1])}</div><div><b>Qué cambia</b>${esc(dose[2])}</div></div>
+    ${TESTS[n]?`<p class="note"><b>Pruebas esta semana:</b> ${esc(TESTS[n])}</p>`:''}
+    ${p.reglas?`<p class="note"><b>Reglas de la fase:</b> ${esc(p.reglas)}</p>`:''}
+  </section>
+  <section style="display:flex;flex-direction:column;gap:10px"><span class="eyebrow">Qué rutinas hace según los días que asiste</span><div class="days">`;
+  [3,4,5].forEach(d=>{h+=`<div class="day"><h3>${d} días</h3><div class="chips">${lists[d].map((r,i)=>`<a class="chip" href="#${r}"><small>Día ${i+1}</small>${r.replace('r',' red.')}</a>`).join('')}</div></div>`});
+  h+=`</div></section><section style="display:flex;flex-direction:column;gap:10px"><span class="eyebrow">Rutinas de la semana · toca una para abrirla</span>`;
+  used.forEach(r=>{
+    h+=`<details class="rt" id="${r}"><summary><span class="rid">${r.replace('r','')}</span><span class="rname">${esc(RNAME[r])}${r.endsWith('r')?'<small>Descarga · mitad de series</small>':`<small>${r==='R4'||r==='R5'?'60\' · igual en todas las fases':'60\' · '+esc(p.short)}</small>`}</span><span class="caret">▸</span></summary>
+    <div class="rbody"><div style="display:flex"><button class="btn-ghost copy" type="button" data-r="${r}">Copiar rutina</button></div>${session(r,n)}</div></details>`;
+  });
+  h+=`</section>`;
+  document.getElementById('out').innerHTML=h;
+  try{localStorage.setItem('gym-sem',String(n))}catch(e){}
+}
+
+const sel=document.getElementById('sem');
+for(let i=1;i<=20;i++){const o=document.createElement('option');o.value=i;o.textContent=`Semana ${i} · ${fmt(wStart(i))} al ${fmt(wEnd(i))}`;sel.appendChild(o)}
+sel.value=currentWeek();
+document.getElementById('go').addEventListener('click',produce);
+document.getElementById('hoy').addEventListener('click',()=>{sel.value=currentWeek();produce()});
+document.getElementById('out').addEventListener('click',e=>{
+  const b=e.target.closest('.copy');if(!b)return;
+  const n=sel.value, body=b.closest('.rbody'), card=b.closest('details');
+  const text=`Semana ${n} · ${card.querySelector('.rid').textContent} ${card.querySelector('.rname').childNodes[0].textContent}\n\n`+body.innerText.replace('Copiar rutina','').trim();
+  const done=()=>{b.textContent='Copiada';setTimeout(()=>b.textContent='Copiar rutina',1500)};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(()=>sel2(body))}else sel2(body);
+  function sel2(el){const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Texto seleccionado';}
+});
+produce();
+</script>
+
+</body>
+</html>
